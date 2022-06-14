@@ -6,7 +6,9 @@
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:browser",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/apps/aiar-demo",
         "index": "apps/aiar-demo/src/index.html",
@@ -18,8 +20,11 @@
           "apps/aiar-demo/src/favicon.ico",
           "apps/aiar-demo/src/assets"
         ],
-        "styles": ["apps/aiar-demo/src/styles.scss"],
-        "scripts": []
+        "styles": [
+          "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+          "apps/aiar-demo/src/styles.scss"
+        ],
+        "scripts": [],
       },
       "configurations": {
         "production": {
@@ -83,7 +88,9 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/aiar-demo"],
+      "outputs": [
+        "coverage/apps/aiar-demo"
+      ],
       "options": {
         "jestConfig": "apps/aiar-demo/jest.config.js",
         "passWithNoTests": true
