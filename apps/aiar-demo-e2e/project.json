@@ -1,0 +1,28 @@
+{
+  "root": "apps/aiar-demo-e2e",
+  "sourceRoot": "apps/aiar-demo-e2e/src",
+  "projectType": "application",
+  "targets": {
+    "e2e": {
+      "executor": "@nrwl/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/aiar-demo-e2e/cypress.json",
+        "devServerTarget": "aiar-demo:serve:development"
+      },
+      "configurations": {
+        "production": {
+          "devServerTarget": "aiar-demo:serve:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/aiar-demo-e2e/**/*.{js,ts}"]
+      }
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["aiar-demo"]
+}

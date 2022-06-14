@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "projects": {
+    "aiar-demo": "apps/aiar-demo",
+    "aiar-demo-e2e": "apps/aiar-demo-e2e"
+  }
+}
