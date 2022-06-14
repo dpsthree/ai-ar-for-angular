@@ -25,6 +25,7 @@
           "apps/aiar-demo/src/styles.scss"
         ],
         "scripts": [],
+        "webWorkerTsConfig": "apps/aiar-demo/tsconfig.worker.json"
       },
       "configurations": {
         "production": {
@@ -93,7 +94,8 @@
       ],
       "options": {
         "jestConfig": "apps/aiar-demo/jest.config.js",
-        "passWithNoTests": true
+        "passWithNoTests": true,
+        "webWorkerTsConfig": "apps/aiar-demo/tsconfig.worker.json"
       }
     }
   },
