@@ -39,3 +39,8 @@ testem.log
 Thumbs.db
 
 .angular
+
+/**/assets/**/*.bin
+/**/assets/lego.png
+/**/assets/model.json
+/**/assets/dict.txt
