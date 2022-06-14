@@ -1,10 +1,19 @@
 /// <reference lib="webworker" />
 
+import * as tf from '@tensorflow/tfjs';
+import '@tensorflow/tfjs-backend-webgl';
+import * as automl from '@tensorflow/tfjs-automl';
+
 import {
   ClientMessageTypes,
   CustomClientEvent,
+  PredictionResponseMessage,
   WorkerMessageTypes,
 } from './worker.types';
+
+let model: automl.ObjectDetectionModel;
+
+automl.loadObjectDetection('/assets/model.json').then((m) => (model = m));
 
 addEventListener('message', (e: MessageEvent<CustomClientEvent>) => {
   switch (e.data.type) {
@@ -14,7 +23,11 @@ addEventListener('message', (e: MessageEvent<CustomClientEvent>) => {
   }
 });
 
-function predict(image: string) {
-  console.log('heard from client', image)
-  postMessage({ type: WorkerMessageTypes.PREDICTION_RESPONSE, msg: 'Testing' });
+async function predict(image: ImageData) {
+  const detections = await model.detect(image);
+  const msg: PredictionResponseMessage = {
+    type: WorkerMessageTypes.PREDICTION_RESPONSE,
+    detections,
+  };
+  postMessage(msg);
 }

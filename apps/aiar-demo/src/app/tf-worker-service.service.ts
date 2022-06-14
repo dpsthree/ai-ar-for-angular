@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import * as automl from '@tensorflow/tfjs-automl';
+
 import {
   ClientMessageTypes,
   CustomWorkerEvent,
@@ -18,13 +20,13 @@ export class TfWorkerServiceService {
       (e: MessageEvent<CustomWorkerEvent>) => {
         switch (e.data.type) {
           case WorkerMessageTypes.PREDICTION_RESPONSE:
-            this.handlePredictionResponse(e.data.msg);
+            this.handlePredictionResponse(e.data.detections);
         }
       }
     );
   }
 
-  requestPrediction(image: string) {
+  requestPrediction(image: ImageData) {
     const msg: RequestPredictionMessage = {
       type: ClientMessageTypes.REQUEST_PREDICTION,
       image,
@@ -32,7 +34,7 @@ export class TfWorkerServiceService {
     this.worker.postMessage(msg);
   }
 
-  handlePredictionResponse(msg: string) {
-    console.log('Heard from worker', msg);
+  handlePredictionResponse(detections: automl.PredictedObject[]) {
+    console.log('Heard from worker', detections);
   }
 }

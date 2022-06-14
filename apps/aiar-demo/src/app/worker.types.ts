@@ -1,3 +1,5 @@
+import * as automl from '@tensorflow/tfjs-automl';
+
 export enum ClientMessageTypes {
   REQUEST_PREDICTION = 'REQUEST_PREDICTION',
 }
@@ -8,12 +10,12 @@ export enum WorkerMessageTypes {
 
 export interface RequestPredictionMessage {
   type: ClientMessageTypes.REQUEST_PREDICTION;
-  image: string;
+  image: ImageData;
 }
 
 export interface PredictionResponseMessage {
   type: WorkerMessageTypes.PREDICTION_RESPONSE;
-  msg: string;
+  detections: automl.PredictedObject[];
 }
 
 export type CustomWorkerEvent = PredictionResponseMessage;
