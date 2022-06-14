@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { TfWorkerServiceService } from './tf-worker-service.service';
 
 @Component({
   selector: 'aiar-root',
@@ -7,4 +8,10 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'aiar-demo';
+
+  constructor(private tfws: TfWorkerServiceService) {}
+
+  makePrediction() {
+    this.tfws.requestPrediction('test string from client');
+  }
 }
