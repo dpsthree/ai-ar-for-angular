@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as automl from '@tensorflow/tfjs-automl';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 
 import {
   ClientMessageTypes,
@@ -13,6 +14,10 @@ import {
 })
 export class TfWorkerServiceService {
   worker = new Worker(new URL('./tf-predictions.worker.ts', import.meta.url));
+  detectionSource = new BehaviorSubject<automl.PredictedObject[]>([]);
+  readonly detections = this.detectionSource.asObservable();
+
+  private imageSourceSub: Subscription | undefined;
 
   constructor() {
     this.worker.addEventListener(
@@ -26,15 +31,24 @@ export class TfWorkerServiceService {
     );
   }
 
-  requestPrediction(image: ImageData) {
-    const msg: RequestPredictionMessage = {
-      type: ClientMessageTypes.REQUEST_PREDICTION,
-      image,
-    };
-    this.worker.postMessage(msg);
+  requestPredictions(imageSource: Observable<ImageData>) {
+    if (this.imageSourceSub) {
+      this.imageSourceSub.unsubscribe();
+    }
+    this.imageSourceSub = imageSource.subscribe((image) => {
+      const msg: RequestPredictionMessage = {
+        type: ClientMessageTypes.REQUEST_PREDICTION,
+        image,
+      };
+      this.worker.postMessage(msg);
+    });
   }
 
   handlePredictionResponse(detections: automl.PredictedObject[]) {
-    console.log('Heard from worker', detections);
+    this.detectionSource.next(detections);
+  }
+
+  stopPredictions(){
+    this.imageSourceSub?.unsubscribe();
   }
 }

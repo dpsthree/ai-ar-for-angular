@@ -1,11 +1,12 @@
 import {
   Component,
-  TemplateRef,
   ViewChild,
-  ViewRef,
   AfterViewInit,
   ElementRef,
 } from '@angular/core';
+import * as automl from '@tensorflow/tfjs-automl';
+import { Observable, Subject } from 'rxjs';
+
 import { TfWorkerServiceService } from './tf-worker-service.service';
 
 @Component({
@@ -17,6 +18,11 @@ export class AppComponent implements AfterViewInit {
   @ViewChild('canvas')
   canvasRef: ElementRef | undefined;
 
+  private updatedDetections: Observable<automl.PredictedObject[]> =
+    this.tfws.detections;
+
+  private predictionTrigger = new Subject<ImageData>();
+
   constructor(private tfws: TfWorkerServiceService) {}
 
   ngAfterViewInit() {
@@ -27,7 +33,12 @@ export class AppComponent implements AfterViewInit {
         canvas.getContext('2d').drawImage(img, 0, 0);
       };
       img.src = 'assets/lego.png';
+      this.startPredictionLoop()
     }
+  }
+
+  startPredictionLoop() {
+    this.up
   }
 
   makePrediction() {

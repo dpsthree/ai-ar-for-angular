@@ -1,6 +1,5 @@
 /// <reference lib="webworker" />
 
-import * as tf from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-backend-webgl';
 import * as automl from '@tensorflow/tfjs-automl';
 
