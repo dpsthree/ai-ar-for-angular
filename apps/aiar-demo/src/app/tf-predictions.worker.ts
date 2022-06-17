@@ -12,7 +12,9 @@ import {
 
 let model: automl.ObjectDetectionModel;
 
-automl.loadObjectDetection('/assets/model.json').then((m) => (model = m));
+const loaded = automl
+  .loadObjectDetection('/assets/model.json')
+  .then((m) => (model = m));
 
 addEventListener('message', (e: MessageEvent<CustomClientEvent>) => {
   switch (e.data.type) {
@@ -23,6 +25,7 @@ addEventListener('message', (e: MessageEvent<CustomClientEvent>) => {
 });
 
 async function predict(image: ImageData) {
+  await loaded;
   const detections = await model.detect(image);
   const msg: PredictionResponseMessage = {
     type: WorkerMessageTypes.PREDICTION_RESPONSE,

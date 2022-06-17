@@ -31,16 +31,18 @@ export class TfWorkerServiceService {
     );
   }
 
-  requestPredictions(imageSource: Observable<ImageData>) {
+  requestPredictions(imageSource: Observable<ImageData | undefined>) {
     if (this.imageSourceSub) {
       this.imageSourceSub.unsubscribe();
     }
     this.imageSourceSub = imageSource.subscribe((image) => {
-      const msg: RequestPredictionMessage = {
-        type: ClientMessageTypes.REQUEST_PREDICTION,
-        image,
-      };
-      this.worker.postMessage(msg);
+      if (image) {
+        const msg: RequestPredictionMessage = {
+          type: ClientMessageTypes.REQUEST_PREDICTION,
+          image,
+        };
+        this.worker.postMessage(msg);
+      }
     });
   }
 
@@ -48,7 +50,7 @@ export class TfWorkerServiceService {
     this.detectionSource.next(detections);
   }
 
-  stopPredictions(){
+  stopPredictions() {
     this.imageSourceSub?.unsubscribe();
   }
 }

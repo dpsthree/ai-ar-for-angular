@@ -1,2 +1,1 @@
-<button mat-button (click)="makePrediction()">Test Message</button>
-<canvas #canvas> </canvas>
+<aiar-canvas-renderer [detections]="updatedDetections | async" (imageFrame)="makePrediction($event)"></aiar-canvas-renderer>

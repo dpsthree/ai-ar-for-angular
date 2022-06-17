@@ -21,58 +21,44 @@ export class CanvasRendererComponent implements AfterViewInit {
   @Input() set detections(detections: ImageAnnotation[] | undefined | null) {
     if (detections) {
       this.detectionList = detections;
-      this.emitLatestImage();
     }
   }
 
   @ViewChild('canvas')
   private canvasRef: ElementRef | undefined;
+  private video = document.createElement('video');
   private detectionList: ImageAnnotation[] = [];
   private stopping = false;
 
-  constructor() {}
-
-  ngAfterViewInit() {
-    if (this.canvasRef) {
-      const canvas = this.canvasRef.nativeElement;
-      const img = new Image();
-      img.onload = () => {
-        canvas.getContext('2d').drawImage(img, 0, 0);
-        const ctx = canvas.getContext('2d');
-        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        this.imageFrame.emit(imgData);
-      };
-      img.src = 'assets/lego.png';
-    }
-  }
-
-  emitLatestImage() {
-    if (this.canvasRef) {
-      const canvas = this.canvasRef.nativeElement;
-      const ctx = canvas.getContext('2d');
-      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      this.imageFrame.emit(imgData);
-    }
-  }
-
-  render() {
-    if (this.canvasRef && !this.stopping)
-      requestAnimationFrame(() => {
-        this.drawImageAndAnnotations();
-        this.render();
+  constructor() {
+    navigator.mediaDevices
+      .getUserMedia({
+        video: {
+          width: { min: 1280, max: 1280 },
+          height: { min: 720, max: 720 },
+        },
+      })
+      .then((stream) => {
+        this.video.srcObject = stream;
+        this.video.play();
       });
   }
 
-  drawImageAndAnnotations() {
-    if (this.canvasRef) {
-      const canvas: HTMLCanvasElement = this.canvasRef.nativeElement;
+  ngAfterViewInit() {
+    this.render();
+  }
+
+  render() {
+    requestAnimationFrame(() => {
+      const canvas = this.canvasRef?.nativeElement;
       const ctx = canvas.getContext('2d');
-      if (ctx) {
-        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        this.drawImage(ctx, imgData);
-        this.drawDetections(ctx);
-      }
-    }
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.drawImage(this.video, 0, 0, canvas.width, canvas.height);
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      this.imageFrame.emit(imgData);
+      this.drawDetections(ctx);
+      this.render();
+    });
   }
 
   drawImage(ctx: CanvasRenderingContext2D, imgData: ImageData) {
@@ -81,8 +67,16 @@ export class CanvasRendererComponent implements AfterViewInit {
 
   drawDetections(ctx: CanvasRenderingContext2D) {
     this.detectionList.forEach((detection) => {
-      ctx.font = '30px Arial';
-      ctx.fillText(detection.label, 0, 0);
+      ctx.font = '15px Arial';
+      ctx.rect(
+        detection.box.left,
+        detection.box.top,
+        detection.box.width,
+        detection.box.height
+      );
+      ctx.stroke();
+      ctx.fillStyle = '#435a6b';
+      ctx.fillText(detection.label, detection.box.left, detection.box.top + 10);
     });
   }
 }
