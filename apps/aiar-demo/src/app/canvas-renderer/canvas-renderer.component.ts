@@ -28,7 +28,7 @@ export class CanvasRendererComponent implements AfterViewInit {
   private canvasRef: ElementRef | undefined;
   private video = document.createElement('video');
   private detectionList: ImageAnnotation[] = [];
-  private stopping = false;
+  private processing = false;
 
   constructor() {
     navigator.mediaDevices
@@ -52,10 +52,15 @@ export class CanvasRendererComponent implements AfterViewInit {
     requestAnimationFrame(() => {
       const canvas = this.canvasRef?.nativeElement;
       const ctx = canvas.getContext('2d');
-      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
       ctx.drawImage(this.video, 0, 0, canvas.width, canvas.height);
       const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      this.imageFrame.emit(imgData);
+      if (!this.processing) {
+        this.processing = true;
+        this.imageFrame.emit(imgData);
+        setTimeout(() => (this.processing = false), 500);
+      }
       this.drawDetections(ctx);
       this.render();
     });
