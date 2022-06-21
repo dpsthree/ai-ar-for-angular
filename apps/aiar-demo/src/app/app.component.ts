@@ -1,13 +1,12 @@
 import { Component, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import * as automl from '@tensorflow/tfjs-automl';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 import { TfWorkerServiceService } from './tf-worker-service.service';
 
 @Component({
   selector: 'aiar-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements AfterViewInit {
   @ViewChild('canvas')
