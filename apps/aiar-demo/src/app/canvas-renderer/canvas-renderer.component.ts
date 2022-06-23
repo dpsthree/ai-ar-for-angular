@@ -8,7 +8,14 @@ import {
   Input,
   OnDestroy,
 } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { ImageAnnotation } from '../app.types';
+
+interface Stream {
+  mediaStream: MediaStream;
+  label: string;
+  id: string;
+}
 
 const RENDER_TIMING = 300;
 const DETECTION_BOX_COLOR = '#62b8c9';
@@ -29,6 +36,11 @@ export class CanvasRendererComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  videoStreams: Stream[] = [];
+  windowWidth: number | undefined = 1;
+  windowHeight: number | undefined = 1;
+  deviceControl = new FormControl('');
+
   @ViewChild('canvas')
   private canvasRef: ElementRef | undefined;
   private video = document.createElement('video');
@@ -36,24 +48,54 @@ export class CanvasRendererComponent implements AfterViewInit, OnDestroy {
   private processing = false;
   private animationFrame: number | undefined;
 
-  windowWidth: number | undefined = 1;
-  windowHeight: number | undefined = 1;
-
   constructor() {
-    navigator.mediaDevices
-      .getUserMedia({
-        video: {
-          width: { ideal: 1920, max: 1920 }, // min: 1280, max: 1280 },
-          height: { ideal: 1080, max: 1080 }, // min: 720, max: 720 },
-        },
-        audio: false,
-      })
-      .then((stream) => {
-        this.setVideoWindowUpdate(stream);
+    this.deviceControl.valueChanges.subscribe((value) => {
+      if (value) {
+        const selectedVideo = this.videoStreams.find(
+          (stream) => stream.id === value
+        );
+        if (selectedVideo) {
+          this.setVideoWindowUpdate(selectedVideo.mediaStream);
+          this.video.srcObject = selectedVideo.mediaStream;
+          this.video.play();
+          if (typeof this.animationFrame === 'number') {
+            cancelAnimationFrame(this.animationFrame);
+          }
+          this.render();
+        }
+      }
+    });
+    const mediaDevices = navigator.mediaDevices
+      .enumerateDevices()
+      .then((devices) =>
+        devices.filter((device) => device.kind === 'videoinput')
+      );
 
-        this.video.srcObject = stream;
-        this.video.play();
+    mediaDevices.then((devices) => {
+      const streams: Promise<Stream>[] = devices.map(async (device) => {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            deviceId: { exact: device.deviceId },
+            width: { ideal: 1920, max: 1920 },
+            height: { ideal: 1080, max: 1080 },
+          },
+          audio: false,
+        });
+        return {
+          mediaStream: stream,
+          label: device.label,
+          id: device.deviceId,
+        };
       });
+      Promise.all(streams).then((streams) => {
+        this.videoStreams = streams;
+        if (this.videoStreams.length > 0) {
+          this.setVideoWindowUpdate(this.videoStreams[0].mediaStream);
+          this.video.srcObject = this.videoStreams[0].mediaStream;
+          this.video.play();
+        }
+      });
+    });
   }
 
   ngAfterViewInit() {

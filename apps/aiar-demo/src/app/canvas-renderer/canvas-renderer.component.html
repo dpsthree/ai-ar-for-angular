@@ -1,1 +1,6 @@
-<canvas #canvas width="{{windowWidth}}" height="{{windowHeight}}"> </canvas>
+<select [formControl]="deviceControl">
+  <option  *ngFor="let option of videoStreams" [value]="option.id">
+    {{ option.label }}
+  </option>
+</select>
+<canvas #canvas width="{{ windowWidth }}" height="{{ windowHeight }}"> </canvas>
